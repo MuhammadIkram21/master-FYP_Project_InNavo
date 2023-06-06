@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/Screens/roomsearch.dart';
+import 'package:flutter_project/Suppot/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'login.dart';
+
+const int maxFailedLoadAttempts = 3;
 
 class RegUser extends StatefulWidget {
   const RegUser({super.key});
@@ -12,6 +16,79 @@ class RegUser extends StatefulWidget {
 }
 
 class _RegUserState extends State<RegUser> {
+
+  late BannerAd _bottomBannerAd;
+  int _interstitialLoadAttempts = 0;
+  InterstitialAd? _interstitialAd;
+  bool _isBottomBannerAdLoaded = false;
+
+  void _createBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bottomBannerAd.load();
+  }
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _createBottomBannerAd();
+    _createInterstitialAd();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _bottomBannerAd.dispose();
+    _interstitialAd?.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -24,6 +101,13 @@ class _RegUserState extends State<RegUser> {
           ),
         ),
         child: Scaffold(
+            bottomNavigationBar: _isBottomBannerAdLoaded
+                ? Container(
+              height: _bottomBannerAd.size.height.toDouble(),
+              width: _bottomBannerAd.size.width.toDouble(),
+              child: AdWidget(ad: _bottomBannerAd),
+            )
+                : null,
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
@@ -102,6 +186,7 @@ class _RegUserState extends State<RegUser> {
                           onTap: () {
                             // Navigation logic here, navigate to the next page
                             // when the card is clicked
+                            _showInterstitialAd();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -133,6 +218,7 @@ class _RegUserState extends State<RegUser> {
                             children: [
                               new GestureDetector(
                                 onTap: () {
+                                  _showInterstitialAd();
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -185,6 +271,7 @@ class _RegUserState extends State<RegUser> {
                           onTap: () {
                             // Navigation logic here, navigate to the next page
                             // when the card is clicked
+                            _showInterstitialAd();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -217,6 +304,7 @@ class _RegUserState extends State<RegUser> {
                             children: [
                               new GestureDetector(
                                   onTap: () {
+                                    _showInterstitialAd();
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(

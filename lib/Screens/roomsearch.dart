@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter_project/Screens/opencamera.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RoomSearchPage extends StatefulWidget {
   @override
@@ -11,6 +11,8 @@ class RoomSearchPage extends StatefulWidget {
 class _RoomSearchPageState extends State<RoomSearchPage> {
   final _database = FirebaseFirestore.instance.collection('rooms');
   // final _storage = FirebaseStorage.instance.ref();
+
+  final ImagePicker _picker = ImagePicker();
 
   List<DocumentSnapshot> _rooms = [];
 
@@ -58,12 +60,10 @@ class _RoomSearchPageState extends State<RoomSearchPage> {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CameraScreen()));
-                    },
+                    onPressed: () async{
+                      final XFile? photo =
+                      await _picker.pickImage(source: ImageSource.camera);
+                      },
                     child: Text('Open Camera'),
                   ),
                 ],

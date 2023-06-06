@@ -9,11 +9,12 @@ import 'package:flutter_project/Screens/splashscreen.dart';
 import 'package:flutter_project/Screens/welcome.dart';
 import 'package:flutter_project/Screens/GuestRoomSearchPg.dart';
 import 'Suppot/firebase_options.dart';
-import 'package:flutter_project/Screens/opencamera.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 List<CameraDescription> cameras = [];
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -31,7 +32,6 @@ Future<void> main() async {
       'login': (context) =>  LoginPage(),
       'forgetpassword': (context) => const Forgetpassword(),
       'roomsearch': (context) => RoomSearchPage(),
-      'opencamera': (context) => CameraScreen(),
       'GuestRoomSearchPg':(context) => GuestRoomSearch(),
       'admin':(context) => AdminPanel(),
     },

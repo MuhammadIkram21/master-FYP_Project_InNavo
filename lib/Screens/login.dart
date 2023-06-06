@@ -5,11 +5,13 @@ import 'package:flutter_project/Screens/forgetpassword.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/Screens/roomsearch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_project/Suppot/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'user.dart';
 import 'admin.dart';
 import 'register.dart';
 
-
+const int maxFailedLoadAttempts = 3;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -23,7 +25,78 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
-  final _auth = FirebaseAuth.instance;
+
+  int _interstitialLoadAttempts = 0;
+  InterstitialAd? _interstitialAd;
+  late BannerAd _bottomBannerAd;
+  bool _isBottomBannerAdLoaded = false;
+  void _createBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bottomBannerAd.load();
+  }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _createBottomBannerAd();
+    _createInterstitialAd();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _bottomBannerAd.dispose();
+    _interstitialAd?.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +108,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       child: Scaffold(
+          bottomNavigationBar: _isBottomBannerAdLoaded
+              ? Container(
+            height: _bottomBannerAd.size.height.toDouble(),
+            width: _bottomBannerAd.size.width.toDouble(),
+            child: AdWidget(ad: _bottomBannerAd),
+          )
+              : null,
         backgroundColor: Colors.transparent,
         body: Stack(
             children: [Container(
@@ -225,6 +305,7 @@ class _LoginPageState extends State<LoginPage> {
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         if (documentSnapshot.get('role') == "Admin") {
+          _showInterstitialAd();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -232,6 +313,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         }else{
+          _showInterstitialAd();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -273,6 +355,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.black)),
         GestureDetector(
           onTap: () {
+            _showInterstitialAd();
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => Register()));
           },

@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/ReusedCode/reusable_widget.dart';
+import 'package:flutter_project/Suppot/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class Forgetpassword extends StatefulWidget {
   const Forgetpassword({Key? key}) : super(key: key);
+
 
   @override
   State<Forgetpassword> createState() => _ForgetpasswordState();
@@ -11,9 +14,48 @@ class Forgetpassword extends StatefulWidget {
 
 class _ForgetpasswordState extends State<Forgetpassword> {
   TextEditingController _emailTextController = TextEditingController();
+  late String _name;
+  late BannerAd _bottomBannerAd;
+  bool _isBottomBannerAdLoaded = false;
+  void _createBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bottomBannerAd.load();
+  }
+  @override
+  void initState() {
+    super.initState();
+    _createBottomBannerAd();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _bottomBannerAd.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: _isBottomBannerAdLoaded
+          ? Container(
+        height: _bottomBannerAd.size.height.toDouble(),
+        width: _bottomBannerAd.size.width.toDouble(),
+        child: AdWidget(ad: _bottomBannerAd),
+      )
+          : null,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
