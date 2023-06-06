@@ -23,6 +23,7 @@ class _WelcomeState extends State<Welcome> {
   InterstitialAd? _interstitialAd;
 
   bool _isBottomBannerAdLoaded = false;
+
   void _createBottomBannerAd() {
     _bottomBannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,

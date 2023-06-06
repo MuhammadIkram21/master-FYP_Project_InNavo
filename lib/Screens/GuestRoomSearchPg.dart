@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Suppot/ad_helper.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'login.dart';
 
@@ -21,10 +23,40 @@ class _GuestRoomSearchState extends State<GuestRoomSearch> {
   String entries = '';
 
   String name = "";
+
+  late BannerAd _bottomBannerAd;
+  bool _isBottomBannerAdLoaded = false;
+
+  void _createBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bottomBannerAd.load();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _createBottomBannerAd();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bottomBannerAd.dispose();
   }
 
   getData() async {
@@ -91,6 +123,13 @@ class _GuestRoomSearchState extends State<GuestRoomSearch> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomNavigationBar: _isBottomBannerAdLoaded
+            ? Container(
+          height: _bottomBannerAd.size.height.toDouble(),
+          width: _bottomBannerAd.size.width.toDouble(),
+          child: AdWidget(ad: _bottomBannerAd),
+        )
+            : null,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
