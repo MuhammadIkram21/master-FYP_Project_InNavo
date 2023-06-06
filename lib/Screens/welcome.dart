@@ -134,7 +134,6 @@ class _WelcomeState extends State<Welcome> {
                         children: [
                           firebaseUIButton(context, "SignIn As Admin", () {
                             {
-                              _showInterstitialAd();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -146,7 +145,6 @@ class _WelcomeState extends State<Welcome> {
                           ),
                           firebaseUIButton(context, "SignIn As Member", () {
                             {
-                              _showInterstitialAd();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -179,7 +177,7 @@ class _WelcomeState extends State<Welcome> {
                                           "Timestamp": FieldValue.serverTimestamp(),
                                         }).then((value) {
                                           print("guest added");
-                                          _showInterstitialAd();
+                                          _showInterstitialAd();//for showing ads
                                           Navigator.push(context,
                                               MaterialPageRoute(builder: (context) => GuestRoomSearch()));
                                         }).onError((error, stackTrace) {
