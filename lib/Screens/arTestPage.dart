@@ -110,8 +110,3 @@ class HomePageState extends State<HomePage> {
     controller.addArCoreNode(node);
   }
 }
-
-
-
-
-
