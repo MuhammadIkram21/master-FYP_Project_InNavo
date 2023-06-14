@@ -52,6 +52,10 @@ dependencies:
   flutter_native_splash: ^2.2.19
   firebase_storage: ^11.2.2
   google_mobile_ads: ^3.0.0
+  get: ^4.6.5
+  permission_handler: ^10.3.0
+  arcore_flutter_plugin: ^0.1.0
+  ar_flutter_plugin: ^0.7.3
 
   
 

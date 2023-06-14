@@ -22,7 +22,7 @@ class _RegUserState extends State<RegUser> {
     return Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/welcome.jpg'),
+            image: AssetImage('assets/background.jpg'),
             fit: BoxFit.fill,
           ),
         ),
@@ -57,7 +57,7 @@ class _RegUserState extends State<RegUser> {
                       left: 0,
                       child: Row(
                         children: [
-                          Image.asset('assets/vlogotb.png',
+                          Image.asset('assets/Final Logo.png',
                               width: 150, height: 150),
                           Text.rich(
                             TextSpan(

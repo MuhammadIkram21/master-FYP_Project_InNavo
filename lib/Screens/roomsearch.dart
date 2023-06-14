@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_project/Screens/arTestPage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RoomSearchPage extends StatefulWidget {
@@ -10,8 +11,6 @@ class RoomSearchPage extends StatefulWidget {
 
 class _RoomSearchPageState extends State<RoomSearchPage> {
   final _database = FirebaseFirestore.instance.collection('rooms');
-  // final _storage = FirebaseStorage.instance.ref();
-
   final ImagePicker _picker = ImagePicker();
 
   List<DocumentSnapshot> _rooms = [];
@@ -35,11 +34,8 @@ class _RoomSearchPageState extends State<RoomSearchPage> {
       context: context,
       builder: (BuildContext context) {
         return FutureBuilder(
-          future: Future.wait([
-            // _storage.child(room['image']).getDownloadURL(),
-            _openCamera(),
-          ]),
-          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+          future: _openCamera(),
+          builder: (context, AsyncSnapshot<void> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(),
@@ -50,20 +46,21 @@ class _RoomSearchPageState extends State<RoomSearchPage> {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Image.network(
-                    //   snapshot.data[0],
-                    //   width: 100,
-                    //   height: 100,
-                    // ),
                     Text('Address: ${room['address']}'),
                   ],
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () async{
-                      final XFile? photo =
-                      await _picker.pickImage(source: ImageSource.camera);
-                      },
+                    onPressed: () async {
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                          builder: (context) => LocalAndWebObjectsView()));
+
+                      // final XFile? photo =
+                      // await _picker.pickImage(source: ImageSource.camera);
+                    },
                     child: Text('Open Camera'),
                   ),
                 ],
@@ -83,49 +80,51 @@ class _RoomSearchPageState extends State<RoomSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Room Search'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  _rooms = _rooms.where((rooms) {
-                    final roomName = rooms['name'].toLowerCase();
-                    final query = value.toLowerCase();
-
-                    return roomName.contains(query);
-                  }).toList();
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search for rooms',
-                border: OutlineInputBorder(),
-              ),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Room Search'),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _rooms.length,
-              itemBuilder: (context, index) {
-                final rooms = _rooms[index];
-
-                return ListTile(
-                  title: Text(rooms['name']),
-                  subtitle: Text(rooms['address']),
-                  onTap: () {
-                    _showRoomDetails(context, rooms);
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      _rooms = _rooms.where((room) {
+                        final roomName = room['name'].toLowerCase();
+                        final query = value.toLowerCase();
+                        return roomName.contains(query);
+                      }).toList();
+                    });
                   },
-                );
-              },
-            ),
+                  decoration: InputDecoration(
+                    hintText: 'Search for rooms',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _rooms.length,
+                  itemBuilder: (context, index) {
+                    final room = _rooms[index];
+                    return ListTile(
+                      title: Text(room['name']),
+                      subtitle: Text(room['address']),
+                      onTap: () {
+                        _showRoomDetails(context, room);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

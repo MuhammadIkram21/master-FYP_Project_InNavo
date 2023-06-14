@@ -150,7 +150,7 @@ class _GuestRoomSearchState extends State<GuestRoomSearch> {
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/vlogotb.png'),
+                image: AssetImage('assets/Final Logo.png'),
                 fit: BoxFit.cover,
                 colorFilter: new ColorFilter.mode(
                     Colors.black.withOpacity(0.2), BlendMode.dstATop),

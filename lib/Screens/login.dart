@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/welcome.jpg'),
+            image: AssetImage('assets/background.jpg'),
             fit: BoxFit.fill,
           ),
         ),
@@ -81,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [Container(
                   padding: EdgeInsets.only(right: 20, top: 50),
                   child: Image.asset(
-                    'assets/vlogotb.png',
+                    'assets/Final Logo.png',
                     height: 600,
 
                   ),
@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                                         filled: true,
                                         fillColor: Colors.white,
                                         hintText: 'Email',
-                                        hintStyle: TextStyle(color: Colors.black),
+                                        hintStyle: TextStyle(color: Colors.black,),
                                         enabled: true,
                                         contentPadding: const EdgeInsets.only(
                                             left: 14.0, bottom: 8.0, top: 8.0),

@@ -72,7 +72,7 @@ class _RegisterState extends State<Register> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/welcome.jpg'),
+          image: AssetImage('assets/background.jpg'),
           fit: BoxFit.fill,
         ),
       ),
@@ -89,7 +89,7 @@ class _RegisterState extends State<Register> {
             children: [Container(
         padding: EdgeInsets.only(right: 20, top: 50),
         child: Image.asset(
-          'assets/vlogotb.png',
+          'assets/Final Logo.png',
           height: 600,
 
         ),

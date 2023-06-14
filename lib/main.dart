@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/Screens/admin.dart';
+import 'package:flutter_project/Screens/arTestPage.dart';
 import 'package:flutter_project/Screens/forgetpassword.dart';
 import 'package:flutter_project/Screens/login.dart';
 import 'package:flutter_project/Screens/roomsearch.dart';
@@ -34,6 +35,7 @@ Future<void> main() async {
       'roomsearch': (context) => RoomSearchPage(),
       'GuestRoomSearchPg':(context) => GuestRoomSearch(),
       'admin':(context) => AdminPanel(),
+      'arTestPage':(context)=> LocalAndWebObjectsView(),
     },
   ));
 }
