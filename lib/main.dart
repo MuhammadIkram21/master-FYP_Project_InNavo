@@ -35,7 +35,7 @@ Future<void> main() async {
       'roomsearch': (context) => RoomSearchPage(),
       'GuestRoomSearchPg':(context) => GuestRoomSearch(),
       'admin':(context) => AdminPanel(),
-      'arTestPage':(context)=> LocalAndWebObjectsView(),
+      'arTestPage':(context)=> HomePage(),
     },
   ));
 }

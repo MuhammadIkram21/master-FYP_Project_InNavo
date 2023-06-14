@@ -1,125 +1,117 @@
-import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
-import 'package:ar_flutter_plugin/datatypes/node_types.dart';
-import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
-import 'package:ar_flutter_plugin/models/ar_node.dart';
+import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
-class LocalAndWebObjectsView extends StatefulWidget {
-  const LocalAndWebObjectsView({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
 
   @override
-  State<LocalAndWebObjectsView> createState() => _LocalAndWebObjectsViewState();
+  HomePageState createState() => HomePageState();
 }
 
-class _LocalAndWebObjectsViewState extends State<LocalAndWebObjectsView> {
-  late ARSessionManager arSessionManager;
-  late ARObjectManager arObjectManager;
+/*
+* This class is used for maintain state behaviour
+* */
+class HomePageState extends State<HomePage> {
 
-  //String localObjectReference;
-  ARNode? localObjectNode;
-
-  //String webObjectReference;
-  ARNode? webObjectNode;
+  late ArCoreController arCoreController;
 
   @override
   void dispose() {
-    arSessionManager.dispose();
+    // TODO: implement dispose
+    arCoreController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Local / Web Objects"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .8,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: ARView(
-                  onARViewCreated: onARViewCreated,
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                      onPressed: onLocalObjectButtonPressed,
-                      child: const Text("Add / Remove Local Object")),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                      onPressed: onWebObjectAtButtonPressed,
-                      child: const Text("Add / Remove Web Object")),
-                )
-              ],
-            ),
-          ],
+        appBar: AppBar(
+          title: Text("Ar Demo App"),
         ),
-      ),
+        // add your AR Core View Widget here
+        body: ArCoreView(
+          onArCoreViewCreated: _onArCoreViewCreated,
+        ));
+  }
+
+/*
+* This is a AR core view controller
+* */
+  void _onArCoreViewCreated(ArCoreController controller) {
+    arCoreController = controller;
+    //add view in ar core view controller.
+    _addSphere(arCoreController);
+    _addCylindre(arCoreController);
+    _addCube(arCoreController);
+  }
+
+/*
+* This method is used for the create sphere view
+* */
+  void _addSphere(ArCoreController controller) {
+    // add colors
+    final material = ArCoreMaterial(color: Color.fromARGB(120, 66, 134, 244));
+    // create sphere view
+    final sphere = ArCoreSphere(
+      materials: [material],
+      radius: 0.1,
     );
-  }
-
-  void onARViewCreated(
-      ARSessionManager arSessionManager,
-      ARObjectManager arObjectManager,
-      ARAnchorManager arAnchorManager,
-      ARLocationManager arLocationManager) {
-    this.arSessionManager = arSessionManager;
-    this.arObjectManager = arObjectManager;
-
-    this.arSessionManager.onInitialize(
-      showFeaturePoints: false,
-      showPlanes: true,
-      customPlaneTexturePath: "assets/arrow-icon.png",
-      showWorldOrigin: true,
-      handleTaps: false,
+    // add sphere view in the AR code node
+    final node = ArCoreNode(
+      shape: sphere,
+      position: vector.Vector3(0, 0, -1.5),
     );
-    this.arObjectManager.onInitialize();
+    controller.addArCoreNode(node);
   }
 
-  Future<void> onLocalObjectButtonPressed() async {
-    if (localObjectNode != null) {
-      arObjectManager.removeNode(localObjectNode!);
-      localObjectNode = null;
-    } else {
-      var newNode = ARNode(
-          type: NodeType.localGLTF2,
-          uri: "assets/arrow-icon.png",
-          scale: Vector3(0.2, 0.2, 0.2),
-          position: Vector3(0.0, 0.0, 0.0),
-          rotation: Vector4(1.0, 0.0, 0.0, 0.0));
-      bool? didAddLocalNode = await arObjectManager.addNode(newNode);
-      localObjectNode = (didAddLocalNode!) ? newNode : null;
-    }
+/*
+* This method is used for the create cylinder view
+* */
+  void _addCylindre(ArCoreController controller) {
+    // add colors
+    final material = ArCoreMaterial(
+      color: Colors.red,
+      reflectance: 1.0,
+    );
+    // create cylinder view
+    final cylindre = ArCoreCylinder(
+      materials: [material],
+      radius: 0.5,
+      height: 0.3,
+    );
+    // add cylinder view in AR Core node
+    final node = ArCoreNode(
+      shape: cylindre,
+      position: vector.Vector3(0.0, -0.5, -2.0),
+    );
+    controller.addArCoreNode(node);
   }
 
-  Future<void> onWebObjectAtButtonPressed() async {
-    if (webObjectNode != null) {
-      arObjectManager.removeNode(webObjectNode!);
-      webObjectNode = null;
-    } else {
-      var newNode = ARNode(
-          type: NodeType.webGLB,
-          uri:
-          "assets/arrow-icon.png",
-          scale: Vector3(0.2, 0.2, 0.2));
-      bool? didAddWebNode = await arObjectManager.addNode(newNode);
-      webObjectNode = (didAddWebNode!) ? newNode : null;
-    }
+/*
+* This method is used for the create cube view
+* */
+  void _addCube(ArCoreController controller) {
+    // add color
+    final material = ArCoreMaterial(
+      color: Color.fromARGB(120, 66, 134, 244),
+      metallic: 1.0,
+    );
+    // create Cube view
+    final cube = ArCoreCube(
+      materials: [material],
+      size: vector.Vector3(0.5, 0.5, 0.5),
+    );
+    // add your cube view in the AR Core Node
+    final node = ArCoreNode(
+      shape: cube,
+      position: vector.Vector3(-0.5, 0.5, -3.5),
+    );
+    controller.addArCoreNode(node);
   }
 }
+
+
+
+
+

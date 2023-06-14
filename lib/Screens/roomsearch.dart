@@ -56,7 +56,7 @@ class _RoomSearchPageState extends State<RoomSearchPage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                          builder: (context) => LocalAndWebObjectsView()));
+                          builder: (context) => HomePage()));
 
                       // final XFile? photo =
                       // await _picker.pickImage(source: ImageSource.camera);
